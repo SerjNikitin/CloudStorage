@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<?import javafx.scene.text.Font?>
+<AnchorPane prefHeight="314.0" prefWidth="527.0" xmlns="http://javafx.com/javafx/11.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.CloudStorage">
+    <children>
+        <Button layoutX="382.0" layoutY="248.0" mnemonicParsing="false" onAction="#send" prefHeight="41.0"
+                prefWidth="138.0" text="Отправить">
+            <font>
+                <Font size="11.0"/>
+            </font>
+        </Button>
+        <ListView fx:id="client" layoutX="7.0" layoutY="14.0" prefHeight="234.0" prefWidth="513.0"/>
+        <Label fx:id="output" layoutX="7.0" layoutY="248.0" prefHeight="30.0" prefWidth="156.0"/>
+    </children>
+</AnchorPane>
