@@ -24,20 +24,16 @@ public class Handler implements Runnable {
                 System.out.println("File: " + name + ", size: " + size);
                 try (FileOutputStream fos = new FileOutputStream(serverDir + "\\" + name)) {
                     int readCheck = 0;
-
                     while ((readCheck = in.read(buffer)) != -1) {
                         fos.write(buffer, 0, readCheck);
                     }
-
                 }
-                out.writeUTF("Файл: " + name + " полностью передался");
+                out.writeUTF("Файл: " + name + " отправлен");
                 out.flush();
-
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 //
 //    public void outputFile() {
