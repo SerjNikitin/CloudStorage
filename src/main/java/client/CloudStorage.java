@@ -13,14 +13,14 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class CloudStorage implements Initializable {
     public ListView<String> client;
     public Label output;
-    private DataOutputStream out;
-    private DataInputStream in;
-    private final String dirClient = "D:\\учеба\\JAVA\\CloudStorage\\lesson1\\src\\main\\java\\client\\saveFiles";
+    private Path path= Paths.get("saveFiles").toAbsolutePath();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -50,8 +50,8 @@ public class CloudStorage implements Initializable {
 
     public void send(ActionEvent actionEvent) throws IOException {
         String fileName = client.getSelectionModel().getSelectedItem();
-        File file = new File(
-                dirClient+"\\" + fileName);
+        Path file =Paths.get(
+                path + "\\" + fileName);
         long size = file.length();
         out.writeUTF(fileName);
         out.writeLong(size);
@@ -59,45 +59,46 @@ public class CloudStorage implements Initializable {
         output.setText("Файл: " + fileName + ", отправлен на сервер");
     }
 }
+//  public ListView<String> client;
+//    public Label output;
+//    private DataOutputStream out;
+//    private DataInputStream in;
+//    private final String dirClient = "D:\\учеба\\JAVA\\CloudStorage\\lesson1\\src\\main\\java\\client\\saveFiles";
 
-//    public void outputFile() {
-//        File file = new File("D:\\учеба\\JAVA\\client.CloudStorage\\client.CloudStorage\\src\\main\\java\\client\\saveFiles\\photo.jpg");
+// @Override
+//    public void initialize(URL url, ResourceBundle resourceBundle) {
 //        try {
-//            FileInputStream fis = new FileInputStream(file);
-//                int readCheck = 0;
+//            Socket socket = new Socket("127.0.0.1", 8080);
+//            in = new DataInputStream(socket.getInputStream());
+//            out = new DataOutputStream(socket.getOutputStream());
+//            File file = new File(dirClient);
+//            client.getItems().addAll(file.list());
+//            Thread thread = new Thread(() -> {
 //                try {
-//                    while ((readCheck = fis.read(buffer)) != -1) {
-//                        out.write(buffer, 0, readCheck);
-//                        out.flush();
+//                    while (true) {
+//                        String status = in.readUTF();
+//                        Platform.runLater(() -> output.setText(status));
 //                    }
+//
 //                } catch (IOException e) {
 //                    e.printStackTrace();
-//                    System.out.println("Server down...");
-//                    System.out.println("Connection closed.");
 //                }
-//        } catch (FileNotFoundException e) {
+//            });
+//            thread.setDaemon(true);
+//            thread.start();
+//        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-//
 //    }
 //
-//    public void inputFile() {
-//        try {
-//            FileOutputStream fos = new FileOutputStream("адрес файла куда скачивать");
-//            int readCheck = 0;
-//            try {
-//                while ((readCheck = in.read(buffer)) != -1) {
-//                    fos.write(buffer, 0, readCheck);
-//                    fos.flush();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//
-////        System.out.println("Incoming message chanel closed.");
-////        System.out.println("Please double press ENTER...");
+//    public void send(ActionEvent actionEvent) throws IOException {
+//        String fileName = client.getSelectionModel().getSelectedItem();
+//        File file = new File(
+//                dirClient+"\\" + fileName);
+//        long size = file.length();
+//        out.writeUTF(fileName);
+//        out.writeLong(size);
+//        Files.copy(file.toPath(), out);
+//        output.setText("Файл: " + fileName + ", отправлен на сервер");
 //    }
 //}
