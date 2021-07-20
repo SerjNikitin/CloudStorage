@@ -43,35 +43,3 @@ public class Server {
         }
     }
 }
-//    private final String serverDir = "D:\\учеба\\JAVA\\CloudStorage\\lesson1\\src\\main\\java\\server\\saveFiles";
-//    private final byte[] buffer;
-//    private final DataOutputStream out;
-//    private final DataInputStream in;
-//
-//    public Handler(Socket accept) throws IOException {
-//        buffer = new byte[8 * 1024];
-//        in = new DataInputStream(accept.getInputStream());
-//        out = new DataOutputStream(accept.getOutputStream());
-//    }
-//
-//    @Override
-//    public void run() {
-//        try {
-//            while (true) {
-//                String name = in.readUTF();
-//                long size = in.readLong();
-//                System.out.println("File: " + name + ", size: " + size);
-//                try (FileOutputStream fos = new FileOutputStream(serverDir + "\\" + name)) {
-//                    int readCheck = 0;
-//                    while ((readCheck = in.read(buffer)) != -1) {
-//                        fos.write(buffer, 0, readCheck);
-//                    }
-//                }
-//                out.writeUTF("Файл: " + name + " отправлен");
-//                out.flush();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//}

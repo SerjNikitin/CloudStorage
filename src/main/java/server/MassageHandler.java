@@ -4,37 +4,59 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
 public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand> {
+
+    private Path currentPath;
+
+    public MassageHandler() {
+        currentPath = Paths.get("serverDir");
+    }
+
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AbstractCommand command) {
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.writeAndFlush(new ListResponse(currentPath));
+        ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, AbstractCommand command) throws IOException {
 
         log.debug("massage: {}", command);
-        ctx.writeAndFlush(command);
         switch (command.getType()) {
             case FILE_MESSAGE:
-                FileMassage massage = (FileMassage) command;
-                try (FileOutputStream fos = new FileOutputStream(
-                        "D:\\учеба\\JAVA\\CloudStorage\\lesson1\\src\\main\\java\\server\\saveFiles" + "\\"
-                                + massage.getName())) {
-                    fos.write(massage.getArr());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                FileMassage message = (FileMassage) command;
+                Files.write(currentPath.resolve(message.getName()), message.getArr());
+                ctx.writeAndFlush(new ListResponse(currentPath));
                 break;
-            case FILE_REQUEST:
-                FileRequest request = (FileRequest)command;
-//                FileMassage massage1 = (FileMassage) command;
-                try (FileOutputStream fos = new FileOutputStream(
-                        "D:\\учеба\\JAVA\\CloudStorage\\lesson1\\src\\main\\java\\client\\saveFiles" + "\\"
-                                + request.getName())) {
-                    fos.write(request.getArr());
-                } catch (IOException e) {
-                    e.printStackTrace();
+            case PATH_UP:
+                if (currentPath.getParent() != null) {
+                    currentPath = currentPath.getParent();
                 }
+                ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
+                ctx.writeAndFlush(new ListResponse(currentPath));
+                break;
+            case LIST_REQUEST:
+                ctx.writeAndFlush(new ListResponse(currentPath));
+                break;
+            case PATH_IN_REQUEST:
+                PathInRequest request = (PathInRequest) command;
+                Path resolve = currentPath.resolve(request.getPath());
+                if (Files.isDirectory(resolve)) {
+                    currentPath = resolve;
+                    ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
+                    ctx.writeAndFlush(new ListResponse(currentPath));
+                    break;
+                }
+            case FILE_REQUEST:
+                FileRequest fileRequest = (FileRequest) command;
+                FileMassage msg = new FileMassage(currentPath.resolve(fileRequest.getName()));
+                ctx.writeAndFlush(msg);
                 break;
         }
     }
