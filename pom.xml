@@ -6,27 +6,36 @@
 
     <groupId>org.example</groupId>
     <artifactId>lesson1</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>cloudStorage-server</module>
+        <module>cloudStorage-client</module>
+        <module>cloudStorage-core</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.3</version>
-                <configuration>
-                    <mainClass>com.example.App</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
+<!--    <build>-->
+<!--        <plugins>-->
+<!--                        <plugin>-->
+<!--                            <groupId>org.openjfx</groupId>-->
+<!--                            <artifactId>javafx-maven-plugin</artifactId>-->
+<!--                            <version>0.0.3</version>-->
+<!--                            <configuration>-->
+<!--                                <mainClass>com.example.App</mainClass>-->
+<!--                            </configuration>-->
+<!--                        </plugin>-->
+
+<!--        </plugins>-->
+<!--    </build>-->
 
     <dependencies>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
