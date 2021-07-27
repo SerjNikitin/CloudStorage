@@ -6,9 +6,14 @@ import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import model.*;
 
@@ -192,7 +197,6 @@ public class CloudStorage implements Initializable {
         }
     }
 
-
     public void openServerFile(ActionEvent actionEvent) {
         String selectedItem = server.getSelectionModel().getSelectedItem();
         Path path = Paths.get("serverDir").resolve(selectedItem);
@@ -203,6 +207,23 @@ public class CloudStorage implements Initializable {
         try {
             assert desktop != null;
             desktop.open(new File(String.valueOf(path)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exit(ActionEvent actionEvent) {
+        openNewScene("Authorization.fxml", actionEvent);
+    }
+
+    private void openNewScene(String scene, ActionEvent actionEvent) {
+        Stage stage = new Stage();
+        try {
+            Parent parent = FXMLLoader.load(getClass().getResource(scene));
+            stage.setScene(new Scene(parent));
+            stage.show();
+            Button source = (Button) actionEvent.getSource();
+            source.getScene().getWindow().hide();
         } catch (IOException e) {
             e.printStackTrace();
         }
