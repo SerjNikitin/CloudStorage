@@ -195,21 +195,6 @@ public class CloudStorage implements Initializable {
         }
     }
 
-    public void openServerFile(ActionEvent actionEvent) {
-        String selectedItem = server.getSelectionModel().getSelectedItem();
-        Path path = Paths.get("serverDir").resolve(selectedItem);
-        Desktop desktop = null;
-        if (Desktop.isDesktopSupported()) {
-            desktop = Desktop.getDesktop();
-        }
-        try {
-            assert desktop != null;
-            desktop.open(new File(String.valueOf(path)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void exit(ActionEvent actionEvent) {
         openNewScene("Authorization.fxml", actionEvent);
     }

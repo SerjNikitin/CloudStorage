@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="440.0" prefWidth="646.0" style="-fx-background-color: #65748a" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CreateNewAccount">
+<AnchorPane fx:id="anchorPane" prefHeight="440.0" prefWidth="646.0" style="-fx-background-color: #65748a" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CreateNewAccount">
 
     <Button layoutX="241.0" layoutY="344.0" mnemonicParsing="false" onAction="#register" prefHeight="43.0" prefWidth="163.0" text="Зарегистрироваться" textFill="#65748a">
         <font>

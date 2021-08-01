@@ -1,19 +1,21 @@
 package controller;
 
-import animations.Shake;
+
 import dataBase.RequestDB;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import lombok.extern.slf4j.Slf4j;
-import model.AbstractAuth;
+import model.AbstractCommand;
 import model.AuthenticationResponse;
+import model.Message;
 import model.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -26,17 +28,15 @@ import java.util.ResourceBundle;
 public class Authorization implements Initializable {
     public TextField login;
     public PasswordField password;
+    public AnchorPane anchorPane;
     private RequestDB requestDB = new RequestDB();
-    private Stream stream=new Stream();
+    private Stream stream = new Stream();
     private Thread readThread;
-    private User user=new User();
-
-    @FXML
-    public Button entrance;
+    private User user = new User();
 
 
     public void register(ActionEvent actionEvent) {
-        openNewScene("CreateNewAccount.fxml", actionEvent);
+        openNewScene("CreateNewAccount.fxml");
 
     }
 
@@ -61,59 +61,51 @@ public class Authorization implements Initializable {
         String pass = password.getText().trim();
         if (log.length() > 0 && pass.length() > 0) {
             try {
-                stream.getOs().writeObject(new model.Authorization(log,pass));
-                openNewScene("CloudStorage.fxml", actionEvent);
+                stream.getOs().writeObject(new model.Authorization(log, pass));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void openNewScene(String scene, ActionEvent actionEvent) {
-        Stage stage = new Stage();
-        try {
-            Parent parent = FXMLLoader.load(getClass().getResource(scene));
-            stage.setScene(new Scene(parent));
-            stage.show();
-            Button source = (Button) actionEvent.getSource();
-            source.getScene().getWindow().hide();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         readThread = new Thread(() -> {
             try {
                 while (!readThread.isInterrupted()) {
-                    AbstractAuth command = (AbstractAuth) stream.getIs().readObject();
+                    AbstractCommand command = (AbstractCommand) stream.getIs().readObject();
                     log.debug("received: {}", command);
-                    switch (command.getTape()) {
+                    switch (command.getType()) {
+
                         case AUTH_RESPONSE:
                             AuthenticationResponse authResponse = (AuthenticationResponse) command;
                             user.setName(authResponse.getName());
                             user.setLogin(authResponse.getLogin());
                             user.setPassword(authResponse.getPassword());
-                            switchToCloud();
+                            String log = login.getText().trim();
+                            String pass = password.getText().trim();
+                            if (log.length() > 0 && pass.length() > 0) {
+                                try {
+                                    stream.getOs().writeObject(new model.Authorization(log, pass));
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            openNewScene("CloudStorage.fxml");
                             readThread.interrupt();
                             break;
+
                         case SIMPLE_MESSAGE:
                             Message message = (Message) command;
                             if (message.toString().equals("Registration successful")) {
                                 Platform.runLater(() -> {
-                                    App.signUpStage.hide();
-                                    App.signInStage.show();
+                                    stream.getSignUpStage().hide();
+                                    stream.getSignInStage().show();
                                 });
                             }
-                            Platform.runLater(() -> {
-                                if (statusText.getScene().getWindow().isShowing()) statusText.setText(message.toString());
-                                else {
-                                    SignUp_Controller signUpController = App.loader.getController();
-                                    signUpController.statusTextSignUp.setText(message.toString());
-                                }
-                            });
                             break;
                     }
                 }
@@ -126,19 +118,16 @@ public class Authorization implements Initializable {
         readThread.start();
     }
 
+    private void openNewScene(String scene ) {
 
-
-    private void switchToCloud() {
-        Platform.runLater(() -> {
-            try {
-                readThread.join();
-            } catch (InterruptedException e) {
-                log.error("Error: {}", e.getMessage());
-            }
-
-            entrance.getScene().getWindow().hide();
-            openNewScene("CloudClient.fxml", (ActionEvent) entrance.getOnAction());
-//                    App.user.getLogin()).showAndWait();
-        });
+        Stage stage = new Stage();
+        try {
+            Parent parent = FXMLLoader.load(getClass().getResource(scene));
+            stage.setScene(new Scene(parent));
+            stage.show();
+            anchorPane.getScene().getWindow().hide();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

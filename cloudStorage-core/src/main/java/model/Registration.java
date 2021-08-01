@@ -5,13 +5,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class Registration extends AbstractAuth{
+public class Registration extends AbstractCommand {
     private String name;
     private String login;
     private String password;
 
     @Override
-    public AuthType getTape() {
-        return AuthType.REGISTRATION;
+    public CommandType getType() {
+        return CommandType.REGISTRATION;
     }
 }

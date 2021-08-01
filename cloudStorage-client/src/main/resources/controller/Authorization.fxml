@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="440.0" prefWidth="646.0" style="-fx-background-color: #65748a"
+<AnchorPane fx:id="anchorPane" prefHeight="440.0" prefWidth="646.0" style="-fx-background-color: #65748a"
             xmlns="http://javafx.com/javafx/11.0.1"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Authorization">
     <children>

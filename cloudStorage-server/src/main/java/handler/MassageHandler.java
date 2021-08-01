@@ -1,5 +1,6 @@
 package handler;
 
+import dataBase.RequestDB;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -9,18 +10,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 @Slf4j
 public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand> {
 
     private Path currentPath;
 
-    public MassageHandler() throws IOException {
-        currentPath = Paths.get("serverDir");
-        if (!Files.exists(currentPath)) {
-            Files.createDirectory(currentPath);
-        }
-    }
+//    public MassageHandler() throws IOException {
+//        currentPath = Paths.get("serverDir");
+//        if (!Files.exists(currentPath)) {
+//            Files.createDirectory(currentPath);
+//        }
+//    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -74,6 +76,32 @@ public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand>
                 boolean isDelete = pathInDel.toFile().delete();
                 if (isDelete) {
                     ctx.writeAndFlush(new ListResponse(currentPath));
+                }
+                break;
+
+            case AUTHORIZATION:
+                Authorization authRequest = (Authorization) command;
+                User user = new User();
+                user.setLogin(authRequest.getLogin());
+                user.setPassword(authRequest.getPassword());
+                Optional<User> resSet = new RequestDB().findUser(user.getLogin(), user.getPassword());
+                try {
+                    currentPath = Paths.get(user.getLogin());
+                    if (!Files.exists(currentPath)) {
+                        Files.createDirectory(currentPath);
+                    }
+                    ctx.writeAndFlush(new AuthenticationResponse(user));
+                } catch (IOException e) {
+                    log.error("Error: {}", e.getClass());
+                }
+                break;
+            case REGISTRATION:
+                Registration regMSG = (Registration) command;
+                User newUser = new User(regMSG.getName(), regMSG.getLogin(), regMSG.getPassword());
+                new RequestDB().createUser(regMSG.getName(), regMSG.getLogin(), regMSG.getPassword());
+                ctx.writeAndFlush(new Message("Registration successful"));
+                if (!Files.exists(currentPath)) {
+                    Files.createDirectory(currentPath);
                 }
                 break;
         }

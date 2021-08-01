@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AuthenticationResponse extends AbstractAuth {
+public class AuthenticationResponse extends AbstractCommand {
 
     private final String name;
     private final String login;
@@ -18,7 +18,7 @@ public class AuthenticationResponse extends AbstractAuth {
     }
 
     @Override
-    public AuthType getTape() {
-        return AuthType.AUTH_RESPONSE;
+    public CommandType getType() {
+        return CommandType.AUTH_RESPONSE;
     }
 }

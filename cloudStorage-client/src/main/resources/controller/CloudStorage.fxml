@@ -20,7 +20,6 @@
     <Button layoutX="7.0" layoutY="392.0" mnemonicParsing="false" onAction="#deleteClientFile" prefHeight="34.0" prefWidth="74.0" text="Удалить" />
     <Button layoutX="97.0" layoutY="392.0" mnemonicParsing="false" onAction="#openClientFile" prefHeight="34.0" prefWidth="74.0" text="Открыть" />
     <Button layoutX="564.0" layoutY="392.0" mnemonicParsing="false" onAction="#deleteServerFile" prefHeight="34.0" prefWidth="74.0" text="Удалить" />
-    <Button layoutX="468.0" layoutY="392.0" mnemonicParsing="false" onAction="#openServerFile" prefHeight="34.0" prefWidth="74.0" text="Открыть" />
     <Button layoutX="3.0" layoutY="2.0" mnemonicParsing="false" onAction="#exit" prefHeight="7.0" prefWidth="15.0" text="❮" textFill="#65748a" textOverrun="LEADING_ELLIPSIS">
         <font>
             <Font name="System Bold Italic" size="11.0" />
