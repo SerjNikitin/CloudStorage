@@ -8,6 +8,7 @@ public enum CommandType {
     DELETE_REQUEST,
     PATH_UP,
     PATH_RESPONSE,
-    PATH_IN_REQUEST;
+    PATH_IN_REQUEST,
+    SIMPLE_MESSAGE
 
 }

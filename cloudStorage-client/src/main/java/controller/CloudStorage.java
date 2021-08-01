@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CloudStorage implements Initializable {
     public ListView<String> client;
-    //    public Label output;
     public ListView<String> server;
     public TextField clientPath;
     public TextField serverPath;
@@ -97,7 +96,6 @@ public class CloudStorage implements Initializable {
     public void download(ActionEvent actionEvent) throws IOException {
         String fileName = server.getSelectionModel().getSelectedItem();
         out.writeObject(new FileRequest(fileName));
-//        output.setText("Файл: " + fileName + ", загружен");
         out.flush();
     }
 

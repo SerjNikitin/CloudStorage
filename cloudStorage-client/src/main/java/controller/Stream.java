@@ -1,0 +1,27 @@
+package controller;
+
+import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
+import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
+import lombok.Getter;
+
+import java.net.Socket;
+
+public class Stream {
+
+    private @Getter
+    ObjectEncoderOutputStream os;
+    private @Getter
+    ObjectDecoderInputStream is;
+    private @Getter
+    Socket socket;
+
+    public Stream() {
+        try {
+            socket = new Socket("localhost", 8080);
+            os = new ObjectEncoderOutputStream(socket.getOutputStream());
+            is = new ObjectDecoderInputStream(socket.getInputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import model.Registration;
 
 import java.io.IOException;
 
@@ -19,14 +20,28 @@ public class CreateNewAccount {
     private RequestDB requestDB = new RequestDB();
 
     public void register(ActionEvent actionEvent) {
+//        String nam = name.getText().trim();
+//        String log = login.getText().trim();
+//        String pass = password.getText().trim();
+//        if (nam.length() > 0 && log.length() > 0 && pass.length() > 0) {
+//            requestDB.createUser(nam, log, pass);
+//            openNewScene("CloudStorage.fxml", actionEvent);
+//        }
+
+
         String nam = name.getText().trim();
         String log = login.getText().trim();
         String pass = password.getText().trim();
         if (nam.length() > 0 && log.length() > 0 && pass.length() > 0) {
-            requestDB.createUser(nam, log, pass);
+            try {
+                Stream stream=new Stream();
+                stream.getOs().writeObject(new Registration(nam,log,pass));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             openNewScene("CloudStorage.fxml", actionEvent);
         }
-
 
 //        else сделать реакцию на незаполненные поля
 
