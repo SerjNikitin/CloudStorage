@@ -5,6 +5,7 @@ import dataBase.RequestDB;
 import dataBase.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -13,10 +14,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 
-public class Authorization {
+public class Authorization implements Initializable {
     public TextField login;
     public PasswordField password;
     private RequestDB requestDB = new RequestDB();
@@ -24,7 +27,6 @@ public class Authorization {
 
     public void register(ActionEvent actionEvent) {
         openNewScene("CreateNewAccount.fxml", actionEvent);
-
     }
 
     public void entrance(ActionEvent actionEvent) {
@@ -54,5 +56,10 @@ public class Authorization {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
     }
 }

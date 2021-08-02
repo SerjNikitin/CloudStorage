@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CloudStorage implements Initializable {
     public ListView<String> client;
-    //    public Label output;
     public ListView<String> server;
     public TextField clientPath;
     public TextField serverPath;
@@ -44,7 +43,6 @@ public class CloudStorage implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-//            String userDir=System.getProperty("user.name");
             clientDir = Paths.get("./").toAbsolutePath();
             log.info("Current user: {}", System.getProperty("user.name"));
             Socket socket = new Socket("localhost", 8080);
@@ -97,12 +95,10 @@ public class CloudStorage implements Initializable {
     public void download(ActionEvent actionEvent) throws IOException {
         String fileName = server.getSelectionModel().getSelectedItem();
         out.writeObject(new FileRequest(fileName));
-//        output.setText("Файл: " + fileName + ", загружен");
         out.flush();
     }
 
     public void addNavigationListeners() {
-
         client.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 String item = client.getSelectionModel().getSelectedItem();
@@ -178,28 +174,12 @@ public class CloudStorage implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void openClientFile(ActionEvent actionEvent) {
         String selectedItem = client.getSelectionModel().getSelectedItem();
         Path path = clientDir.resolve(selectedItem);
 
-        Desktop desktop = null;
-        if (Desktop.isDesktopSupported()) {
-            desktop = Desktop.getDesktop();
-        }
-        try {
-            assert desktop != null;
-            desktop.open(new File(String.valueOf(path)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void openServerFile(ActionEvent actionEvent) {
-        String selectedItem = server.getSelectionModel().getSelectedItem();
-        Path path = Paths.get("serverDir").resolve(selectedItem);
         Desktop desktop = null;
         if (Desktop.isDesktopSupported()) {
             desktop = Desktop.getDesktop();
