@@ -1,6 +1,7 @@
 package controller;
 
 
+import animations.Shake;
 import dataBase.RequestDB;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -62,10 +63,16 @@ public class Authorization implements Initializable {
         if (log.length() > 0 && pass.length() > 0) {
             try {
                 stream.getOs().writeObject(new model.Authorization(log, pass));
+//                openNewScene("CloudStorage.fxml");
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            Shake shakeLogin = new Shake(login);
+            Shake shakePassword = new Shake(password);
+            shakeLogin.play();
+            shakePassword.play();
         }
     }
 
@@ -83,16 +90,6 @@ public class Authorization implements Initializable {
                             user.setName(authResponse.getName());
                             user.setLogin(authResponse.getLogin());
                             user.setPassword(authResponse.getPassword());
-                            String log = login.getText().trim();
-                            String pass = password.getText().trim();
-                            if (log.length() > 0 && pass.length() > 0) {
-                                try {
-                                    stream.getOs().writeObject(new model.Authorization(log, pass));
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
 
                             openNewScene("CloudStorage.fxml");
                             readThread.interrupt();
@@ -102,8 +99,10 @@ public class Authorization implements Initializable {
                             Message message = (Message) command;
                             if (message.toString().equals("Registration successful")) {
                                 Platform.runLater(() -> {
-                                    stream.getSignUpStage().hide();
-                                    stream.getSignInStage().show();
+                                    CloudApp.signUpStage.hide();
+                                    CloudApp.signInStage.show();
+//                                    stream.getSignUpStage().hide();
+//                                    stream.getSignInStage().show();
                                 });
                             }
                             break;
@@ -118,7 +117,7 @@ public class Authorization implements Initializable {
         readThread.start();
     }
 
-    private void openNewScene(String scene ) {
+    private void openNewScene(String scene) {
 
         Stage stage = new Stage();
         try {

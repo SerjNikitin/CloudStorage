@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @Slf4j
@@ -84,7 +86,27 @@ public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand>
                 User user = new User();
                 user.setLogin(authRequest.getLogin());
                 user.setPassword(authRequest.getPassword());
+//                ResultSet resSet = new RequestDB().findUser(user.getLogin(),user.getPassword());
+//                try {
+//                    resSet.next();
+//                    user.setName(resSet.getString(user.getName()));
+////                    user.setLastName(resSet.getString(DB_Const.USER_LASTNAME));
+//                    currentPath = Paths.get(user.getLogin());
+//                    if (!Files.exists(currentPath)) {
+//                        Files.createDirectory(currentPath);
+//                    }
+//                    ctx.writeAndFlush(new AuthenticationResponse(user));
+//                } catch (SQLException throwables) {
+//                    log.error("Error: {}", throwables.getClass());
+//                    ctx.writeAndFlush(new Message("Authentication failed"));
+//                } catch (IOException e) {
+//                    log.error("Error: {}", e.getClass());
+//                }
+//                break;
                 Optional<User> resSet = new RequestDB().findUser(user.getLogin(), user.getPassword());
+                user.setName(resSet.get().getName());
+                user.setLogin(resSet.get().getLogin());
+                user.setPassword(resSet.get().getPassword());
                 try {
                     currentPath = Paths.get(user.getLogin());
                     if (!Files.exists(currentPath)) {

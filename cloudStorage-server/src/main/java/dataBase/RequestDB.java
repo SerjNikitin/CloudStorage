@@ -1,5 +1,6 @@
 package dataBase;
 
+import lombok.extern.slf4j.Slf4j;
 import model.User;
 
 import java.sql.Connection;
@@ -8,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+@Slf4j
 public class RequestDB {
 
 //    public void createUser(String name, String login, String password) {
@@ -55,7 +57,7 @@ public class RequestDB {
     public Optional<User> findUser(String login, String password) {
         try (Connection connection = ConnectorDB.getConnect()) {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    " SELECT * FROM users WHERE login=? AND password=?");
+                    " SELECT users.name, users.login, users.password FROM users WHERE login=? AND password=?");
             preparedStatement.setString(1, login);
             preparedStatement.setString(2, password);
             ResultSet resultSet = preparedStatement.executeQuery();

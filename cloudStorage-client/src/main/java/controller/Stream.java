@@ -2,8 +2,6 @@ package controller;
 
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
-import javafx.fxml.FXMLLoader;
-import javafx.stage.Stage;
 import lombok.Getter;
 
 import java.net.Socket;
@@ -14,9 +12,6 @@ public class Stream {
     private ObjectEncoderOutputStream os;
     private ObjectDecoderInputStream is;
     private Socket socket;
-    private Stage signUpStage;
-    private Stage signInStage;
-    private FXMLLoader loader;
 
     public Stream() {
         try {

@@ -176,7 +176,6 @@ public class CloudStorage implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void openClientFile(ActionEvent actionEvent) {
