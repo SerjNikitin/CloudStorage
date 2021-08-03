@@ -13,6 +13,6 @@ public class PathUpResponse extends AbstractCommand{
 
     @Override
     public CommandType getType() {
-        return CommandType.PATH_RESPONSE;
+        return CommandType.PATH_UP_RESPONSE;
     }
 }

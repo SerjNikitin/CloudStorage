@@ -1,6 +1,7 @@
 package handler;
 
 import dataBase.RequestDB;
+import model.User;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Optional;
 
 @Slf4j
@@ -38,76 +37,85 @@ public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand>
         log.debug("massage: {}", command);
         switch (command.getType()) {
 
-            case FILE_MESSAGE:
-                FileMassage message = (FileMassage) command;
-                Files.write(currentPath.resolve(message.getName()), message.getArr());
-                ctx.writeAndFlush(new ListResponse(currentPath));
-                break;
-
-            case PATH_UP:
-                if (currentPath.getParent() != null) {
-                    currentPath = currentPath.getParent();
-                }
-                ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
-                ctx.writeAndFlush(new ListResponse(currentPath));
-                break;
-
             case LIST_REQUEST:
-                ctx.writeAndFlush(new ListResponse(currentPath));
-                break;
-
-            case PATH_IN_REQUEST:
-                PathInRequest request = (PathInRequest) command;
-                Path resolve = currentPath.resolve(request.getPath());
-                if (Files.isDirectory(resolve)) {
-                    currentPath = resolve;
-                    ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
+                try {
+                    ctx.writeAndFlush(new SimpleMessage("Server file list refreshing"));
                     ctx.writeAndFlush(new ListResponse(currentPath));
-                    break;
+                    ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
+                } catch (IOException e) {
+                    ctx.writeAndFlush(new SimpleMessage("Sending error in block: LIST_MESSAGE"));
                 }
+                ctx.writeAndFlush(new SimpleMessage("Server file list refreshed"));
+                break;
 
             case FILE_REQUEST:
                 FileRequest fileRequest = (FileRequest) command;
-                FileMassage msg = new FileMassage(currentPath.resolve(fileRequest.getName()));
-                ctx.writeAndFlush(msg);
-                break;
-
-            case DELETE_REQUEST:
-                DeleteRequest deleteRequest = (DeleteRequest) command;
-                Path pathInDel = currentPath.resolve(deleteRequest.getName());
-                boolean isDelete = pathInDel.toFile().delete();
-                if (isDelete) {
-                    ctx.writeAndFlush(new ListResponse(currentPath));
+                try {
+                    FileMessage msg = new FileMessage(currentPath.resolve(fileRequest.getName()));
+                    ctx.writeAndFlush(msg);
+                }catch (Exception e){
+                    ctx.writeAndFlush(new SimpleMessage("Sending error in block: FILE_REQUEST"));
                 }
                 break;
 
-            case AUTHORIZATION:
-                Authorization authRequest = (Authorization) command;
+            case FILE_MESSAGE:
+                FileMessage message = (FileMessage) command;
+                Files.write(currentPath.resolve(message.getName()), message.getArr());
+                ctx.writeAndFlush(new ListResponse(currentPath));
+                ctx.writeAndFlush(new SimpleMessage("File sending successful"));
+                break;
+
+            case PATH_UP_REQUEST:
+                try {
+                    if (currentPath.getParent() != null) {
+                        currentPath = currentPath.getParent();
+                        ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
+                        ctx.writeAndFlush(new ListResponse(currentPath));
+                    }
+                } catch (Exception e) {
+                    ctx.writeAndFlush(new SimpleMessage("Sending error in block: PATCH_UP"));
+                }
+                break;
+
+            case PATH_IN_REQUEST:
+                try {
+                    PathInRequest request = (PathInRequest) command;
+                    Path newPath = currentPath.resolve(request.getPath());
+                    if (Files.isDirectory(newPath)) {
+                        currentPath = newPath;
+                        ctx.writeAndFlush(new PathUpResponse(currentPath.toString()));
+                        ctx.writeAndFlush(new ListResponse(currentPath));
+                    }
+                } catch (Exception e) {
+                    ctx.writeAndFlush(new SimpleMessage("Sending error in block: PATH_IN_REQUEST"));
+                }
+                break;
+
+            case DELETE_REQUEST:
+                DeleteRequest request = (DeleteRequest) command;
+                Path delPath = currentPath.resolve(request.getName());
+                boolean isDeleted = delPath.toFile().delete();
+                try {
+                    ctx.writeAndFlush(new ListResponse(currentPath));
+                } catch (IOException e) {
+                    ctx.writeAndFlush(new SimpleMessage("Sending error in block: DELETE_REQUEST"));
+                }
+                if (isDeleted) {
+                    ctx.writeAndFlush(new SimpleMessage("File " + request.getName() + " deleted successful"));
+                } else {
+                    ctx.writeAndFlush(new SimpleMessage("File " + request.getName() + " deleting error"));
+                }
+                break;
+
+            case AUTH_REQUEST:
+                AuthorizationRequest authRequest = (AuthorizationRequest) command;
                 User user = new User();
                 user.setLogin(authRequest.getLogin());
                 user.setPassword(authRequest.getPassword());
-//                ResultSet resSet = new RequestDB().findUser(user.getLogin(),user.getPassword());
-//                try {
-//                    resSet.next();
-//                    user.setName(resSet.getString(user.getName()));
-////                    user.setLastName(resSet.getString(DB_Const.USER_LASTNAME));
-//                    currentPath = Paths.get(user.getLogin());
-//                    if (!Files.exists(currentPath)) {
-//                        Files.createDirectory(currentPath);
-//                    }
-//                    ctx.writeAndFlush(new AuthenticationResponse(user));
-//                } catch (SQLException throwables) {
-//                    log.error("Error: {}", throwables.getClass());
-//                    ctx.writeAndFlush(new Message("Authentication failed"));
-//                } catch (IOException e) {
-//                    log.error("Error: {}", e.getClass());
-//                }
-//                break;
+
                 Optional<User> resSet = new RequestDB().findUser(user.getLogin(), user.getPassword());
-                user.setName(resSet.get().getName());
-                user.setLogin(resSet.get().getLogin());
-                user.setPassword(resSet.get().getPassword());
                 try {
+                    user.setName(resSet.get().getName());
                     currentPath = Paths.get(user.getLogin());
                     if (!Files.exists(currentPath)) {
                         Files.createDirectory(currentPath);
@@ -117,14 +125,12 @@ public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand>
                     log.error("Error: {}", e.getClass());
                 }
                 break;
-            case REGISTRATION:
-                Registration regMSG = (Registration) command;
-                User newUser = new User(regMSG.getName(), regMSG.getLogin(), regMSG.getPassword());
-                new RequestDB().createUser(regMSG.getName(), regMSG.getLogin(), regMSG.getPassword());
-                ctx.writeAndFlush(new Message("Registration successful"));
-                if (!Files.exists(currentPath)) {
-                    Files.createDirectory(currentPath);
-                }
+
+            case REGISTRATION_REQUEST:
+                RegistrationRequest regMassage = (RegistrationRequest) command;
+                User newUser = new User(regMassage.getName(), regMassage.getLogin(), regMassage.getPassword());
+                new RequestDB().createUser(newUser.getName(), newUser.getLogin(), newUser.getPassword());
+                ctx.writeAndFlush(new SimpleMessage("Registration successful"));
                 break;
         }
     }

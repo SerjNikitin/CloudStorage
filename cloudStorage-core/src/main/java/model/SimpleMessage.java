@@ -3,7 +3,7 @@ package model;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class Message extends AbstractCommand {
+public class SimpleMessage extends AbstractCommand {
     private final String content;
 
     public String toString() {

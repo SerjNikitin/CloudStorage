@@ -12,21 +12,6 @@ import java.util.Optional;
 @Slf4j
 public class RequestDB {
 
-//    public void createUser(String name, String login, String password) {
-//        try (Connection connection = ConnectorDB.getConnect()) {
-//            connection.setAutoCommit(false);
-//            PreparedStatement preparedStatement = connection.prepareStatement(
-//                    "INSERT INTO users (name,login,password) VALUES (?,?,?)");
-//            preparedStatement.setString(1, name);
-//            preparedStatement.setString(2, login);
-//            preparedStatement.setString(3, password);
-//            preparedStatement.execute();
-//            connection.commit();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     public void createUser(String name, String login, String password) {
         Connection connection = ConnectorDB.getConnect();
         try {

@@ -1,9 +1,6 @@
 package controller;
 
 
-import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
-import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -11,8 +8,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import model.*;
@@ -20,7 +17,6 @@ import model.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.Socket;
 import java.net.URL;
 
 import java.nio.file.Files;
@@ -32,44 +28,48 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class CloudStorage implements Initializable {
-    public ListView<String> client;
-    public ListView<String> server;
-    public TextField clientPath;
-    public TextField serverPath;
+    public ListView<String> clientView;
+    public ListView<String> serverView;
+    public TextField clientField;
+    public TextField serverField;
+    public AnchorPane anchorPane;
     private Path clientDir;
-    private ObjectEncoderOutputStream out;
-    private ObjectDecoderInputStream in;
+    private Stream stream;
+    private String fileName;
+
+    public CloudStorage() {
+        stream = NetworkSettings.stream;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-//            String userDir=System.getProperty("user.name");
-            clientDir = Paths.get("./").toAbsolutePath();
+            String userDir = System.getProperty("user.name");
+            clientDir = Paths.get("/Users", userDir).toAbsolutePath();
             log.info("Current user: {}", System.getProperty("user.name"));
-            Socket socket = new Socket("localhost", 8080);
-            out = new ObjectEncoderOutputStream(socket.getOutputStream());
-            in = new ObjectDecoderInputStream(socket.getInputStream());
 
             refreshClientView();
             addNavigationListeners();
 
+            stream.getOs().writeObject(new ListRequest());
+
             Thread readThread = new Thread(() -> {
                 try {
                     while (true) {
-                        AbstractCommand command = (AbstractCommand) in.readObject();
+                        AbstractCommand command = (AbstractCommand) stream.getIs().readObject();
                         switch (command.getType()) {
-                            case LIST_MESSAGE:
+                            case LIST_RESPONSE:
                                 ListResponse response = (ListResponse) command;
                                 List<String> names = response.getName();
                                 refreshServerView(names);
                                 break;
-                            case PATH_RESPONSE:
+                            case PATH_UP_RESPONSE:
                                 PathUpResponse pathResponse = (PathUpResponse) command;
                                 String path = pathResponse.getPath();
-                                Platform.runLater(() -> serverPath.setText(path));
+                                Platform.runLater(() -> serverField.setText(path));
                                 break;
                             case FILE_MESSAGE:
-                                FileMassage message = (FileMassage) command;
+                                FileMessage message = (FileMessage) command;
                                 Files.write(clientDir.resolve(message.getName()), message.getArr());
                                 refreshClientView();
                                 break;
@@ -86,24 +86,37 @@ public class CloudStorage implements Initializable {
         }
     }
 
-    public void send(ActionEvent actionEvent) throws IOException {
-        String fileName = client.getSelectionModel().getSelectedItem();
-        FileMassage message = new FileMassage(clientDir.resolve(fileName));
-        out.writeObject(message);
-        out.flush();
+    public void send(ActionEvent actionEvent) {
+        try {
+            fileName = clientView.getSelectionModel().getSelectedItem();
+            if (serverView.getItems().stream().noneMatch(p -> p.equals(fileName))) {
+                FileMessage message = new FileMessage(clientDir.resolve(fileName));
+
+                stream.getOs().writeObject(message);
+                stream.getOs().flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void download(ActionEvent actionEvent) throws IOException {
-        String fileName = server.getSelectionModel().getSelectedItem();
-        out.writeObject(new FileRequest(fileName));
-        out.flush();
+
+    public void download(ActionEvent actionEvent) {
+        try {
+            fileName = serverView.getSelectionModel().getSelectedItem();
+            if (clientView.getItems().stream().noneMatch(p -> p.equals(fileName))) {
+                stream.getOs().writeObject(new FileRequest(fileName));
+                stream.getOs().flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addNavigationListeners() {
-
-        client.setOnMouseClicked(e -> {
+        clientView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
-                String item = client.getSelectionModel().getSelectedItem();
+                String item = clientView.getSelectionModel().getSelectedItem();
                 Path newPath = clientDir.resolve(item);
                 if (Files.isDirectory(newPath)) {
                     clientDir = newPath;
@@ -115,13 +128,12 @@ public class CloudStorage implements Initializable {
                 }
             }
         });
-
-        server.setOnMouseClicked(e -> {
+        serverView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
-                String item = server.getSelectionModel().getSelectedItem();
+                String item = serverView.getSelectionModel().getSelectedItem();
                 try {
-                    out.writeObject(new PathInRequest(item));
-                    out.flush();
+                    stream.getOs().writeObject(new PathInRequest(item));
+                    stream.getOs().flush();
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -131,35 +143,35 @@ public class CloudStorage implements Initializable {
 
     private void refreshServerView(List<String> name) {
         Platform.runLater(() -> {
-            server.getItems().clear();
-            server.getItems().addAll(name);
+            serverView.getItems().clear();
+            serverView.getItems().addAll(name);
         });
     }
 
     private void refreshClientView() throws IOException {
-        clientPath.setText(clientDir.toString());
+        clientField.setText(clientDir.toString());
         List<String> name = Files.list(clientDir)
                 .map(p -> p.getFileName().toString())
                 .collect(Collectors.toList());
         Platform.runLater(() -> {
-            client.getItems().clear();
-            client.getItems().addAll(name);
+            clientView.getItems().clear();
+            clientView.getItems().addAll(name);
         });
     }
 
     public void clientPathUp(ActionEvent actionEvent) throws IOException {
         clientDir = clientDir.getParent();
-        clientPath.setText(clientDir.toString());
+        clientField.setText(clientDir.toString());
         refreshClientView();
     }
 
     public void serverPathUp(ActionEvent actionEvent) throws IOException {
-        out.writeObject(new PathUpRequest());
-        out.flush();
+        stream.getOs().writeObject(new PathUpRequest());
+        stream.getOs().flush();
     }
 
     public void deleteClientFile(ActionEvent actionEvent) throws IOException {
-        String clientItem = client.getSelectionModel().getSelectedItem();
+        String clientItem = clientView.getSelectionModel().getSelectedItem();
         try {
             Files.delete(Paths.get(String.valueOf(clientDir.resolve(clientItem))));
         } catch (IOException e) {
@@ -169,17 +181,17 @@ public class CloudStorage implements Initializable {
     }
 
     public void deleteServerFile(ActionEvent actionEvent) {
-        String serverItem = server.getSelectionModel().getSelectedItem();
+        fileName = serverView.getSelectionModel().getSelectedItem();
         try {
-            Files.delete(Paths.get(String.valueOf(Paths.get("serverDir").resolve(serverItem))));
-            server.getItems().remove(serverItem);
+            stream.getOs().writeObject(new DeleteRequest(fileName));
+            stream.getOs().flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void openClientFile(ActionEvent actionEvent) {
-        String selectedItem = client.getSelectionModel().getSelectedItem();
+        String selectedItem = clientView.getSelectionModel().getSelectedItem();
         Path path = clientDir.resolve(selectedItem);
 
         Desktop desktop = null;
@@ -195,19 +207,26 @@ public class CloudStorage implements Initializable {
     }
 
     public void exit(ActionEvent actionEvent) {
-        openNewScene("Authorization.fxml", actionEvent);
+        anchorPane.getScene().getWindow().hide();
+//        openNewScene("Authorization.fxml", "");
+        NetworkSettings.signInStage.show();
     }
 
-    private void openNewScene(String scene, ActionEvent actionEvent) {
+    private Stage openNewScene(String scene, String userName) {
+
         Stage stage = new Stage();
         try {
             Parent parent = FXMLLoader.load(getClass().getResource(scene));
             stage.setScene(new Scene(parent));
             stage.show();
-            Button source = (Button) actionEvent.getSource();
-            source.getScene().getWindow().hide();
+            anchorPane.getScene().getWindow().hide();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (!userName.equals("")) stage.setTitle("Cloud storage. User: " + userName);
+        else stage.setTitle("Cloud storage");
+        stage.setResizable(false);
+        return stage;
     }
+
 }

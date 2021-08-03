@@ -1,18 +1,15 @@
 package controller;
 
-
 import animations.Shake;
-import dataBase.RequestDB;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import lombok.extern.slf4j.Slf4j;
 import model.AbstractCommand;
 import model.AuthenticationResponse;
-import model.Message;
-import model.User;
+import model.AuthorizationRequest;
+import model.SimpleMessage;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -27,46 +24,36 @@ import java.util.ResourceBundle;
 
 @Slf4j
 public class Authorization implements Initializable {
+
     public TextField login;
     public PasswordField password;
     public AnchorPane anchorPane;
-    private RequestDB requestDB = new RequestDB();
-    private Stream stream = new Stream();
     private Thread readThread;
-    private User user = new User();
-
 
     public void register(ActionEvent actionEvent) {
-        openNewScene("CreateNewAccount.fxml");
+        ((Node) actionEvent.getSource()).getScene().getWindow().hide();
+//        openNewScene("CreateNewAccount.fxml", "");
 
+//         Stage stage=(Stage) anchorPane.getScene().getWindow();
+//         stage.setScene(openNewScene("CreateNewAccount.fxml",""));
+//
+
+        if (NetworkSettings.signUpStage == null) {
+            NetworkSettings.signUpStage = openNewScene("CreateNewAccount.fxml", "");
+        }
+        NetworkSettings.signUpStage.show();
     }
 
-//    public void entrance(ActionEvent actionEvent) {
-//        String log = login.getText().trim();
-//        String pass = password.getText().trim();
-//        if (log.length() > 0 && pass.length() > 0) {
-//            Optional<User> user = requestDB.findUser(log, pass);
-//            if (user.isPresent()) {
-//                openNewScene("CloudStorage.fxml", actionEvent);
-//            } else {
-//                Shake shakeLogin = new Shake(login);
-//                Shake shakePassword = new Shake(password);
-//                shakeLogin.play();
-//                shakePassword.play();
-//            }
-//        }
-//    }
-
     public void entrance(ActionEvent actionEvent) {
-        String log = login.getText().trim();
-        String pass = password.getText().trim();
-        if (log.length() > 0 && pass.length() > 0) {
+        String loginText = login.getText().trim();
+        String passText = password.getText().trim();
+        if (!loginText.equals("") && !passText.equals("")) {
             try {
-                stream.getOs().writeObject(new model.Authorization(log, pass));
-//                openNewScene("CloudStorage.fxml");
+                NetworkSettings.stream.getOs().writeObject(new AuthorizationRequest(loginText, passText));
+//                Stream.getOs().writeObject(new AuthorizationRequest(loginText, passText));
 
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error: {}", e.getMessage());
             }
         } else {
             Shake shakeLogin = new Shake(login);
@@ -81,30 +68,35 @@ public class Authorization implements Initializable {
         readThread = new Thread(() -> {
             try {
                 while (!readThread.isInterrupted()) {
-                    AbstractCommand command = (AbstractCommand) stream.getIs().readObject();
+                    AbstractCommand command = (AbstractCommand) NetworkSettings.stream.getIs().readObject();
+//                    AbstractCommand command = (AbstractCommand) Stream.getIs().readObject();
+
                     log.debug("received: {}", command);
                     switch (command.getType()) {
 
                         case AUTH_RESPONSE:
                             AuthenticationResponse authResponse = (AuthenticationResponse) command;
-                            user.setName(authResponse.getName());
-                            user.setLogin(authResponse.getLogin());
-                            user.setPassword(authResponse.getPassword());
-
-                            openNewScene("CloudStorage.fxml");
+                            NetworkSettings.user.setName(authResponse.getName());
+                            NetworkSettings.user.setLogin(authResponse.getLogin());
+                            NetworkSettings.user.setPassword(authResponse.getPassword());
+                            switchToCloud();
                             readThread.interrupt();
                             break;
 
                         case SIMPLE_MESSAGE:
-                            Message message = (Message) command;
+                            SimpleMessage message = (SimpleMessage) command;
                             if (message.toString().equals("Registration successful")) {
                                 Platform.runLater(() -> {
-                                    CloudApp.signUpStage.hide();
-                                    CloudApp.signInStage.show();
-//                                    stream.getSignUpStage().hide();
-//                                    stream.getSignInStage().show();
+//                                    openNewScene("CloudStorage.fxml", "");
+                                    NetworkSettings.signUpStage.hide();
+                                    NetworkSettings.signInStage.show();
                                 });
                             }
+                            Platform.runLater(() -> {
+//                                FXMLLoader loader=new FXMLLoader();
+//                                loader.getController();
+                                NetworkSettings.loader.getController();
+                            });
                             break;
                     }
                 }
@@ -117,16 +109,51 @@ public class Authorization implements Initializable {
         readThread.start();
     }
 
-    private void openNewScene(String scene) {
+//    private Stage openNewScene(String scene, String userName) {
+//
+////        Stage stage = new Stage();
+//        Stage stage = (Stage) anchorPane.getScene().getWindow();
+//
+//        try {
+//            Parent parent = FXMLLoader.load(getClass().getResource(scene));
+//            stage.setScene(new Scene(parent));
+//            stage.show();
+////            anchorPane.getScene().getWindow().hide();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        if (!userName.equals("")) stage.setTitle("Cloud storage. User: " + userName);
+//        else stage.setTitle("Cloud storage");
+//        stage.setResizable(false);
+//        return stage;
+//    }
 
-        Stage stage = new Stage();
+    private Stage openNewScene(String sceneName, String userName) {
+        NetworkSettings.loader = new FXMLLoader();
+        NetworkSettings.loader.setLocation(getClass().getResource(sceneName));
         try {
-            Parent parent = FXMLLoader.load(getClass().getResource(scene));
-            stage.setScene(new Scene(parent));
-            stage.show();
-            anchorPane.getScene().getWindow().hide();
+            NetworkSettings.loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.debug("Error scene loading: {}", e.getClass());
         }
+        Parent root = NetworkSettings.loader.getRoot();
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        if (!userName.equals("")) stage.setTitle("Cloud storage. User: " + userName);
+        else stage.setTitle("Cloud storage");
+        stage.setResizable(false);
+        return stage;
+    }
+
+    private void switchToCloud() {
+        Platform.runLater(() -> {
+            try {
+                readThread.join();
+            } catch (InterruptedException e) {
+                log.error("Error: {}", e.getMessage());
+            }
+            anchorPane.getScene().getWindow().hide();
+            openNewScene("CloudStorage.fxml", NetworkSettings.user.getLogin()).showAndWait();
+        });
     }
 }
