@@ -32,12 +32,6 @@ public class Authorization implements Initializable {
 
     public void register(ActionEvent actionEvent) {
         ((Node) actionEvent.getSource()).getScene().getWindow().hide();
-//        openNewScene("CreateNewAccount.fxml", "");
-
-//         Stage stage=(Stage) anchorPane.getScene().getWindow();
-//         stage.setScene(openNewScene("CreateNewAccount.fxml",""));
-//
-
         if (NetworkSettings.signUpStage == null) {
             NetworkSettings.signUpStage = openNewScene("CreateNewAccount.fxml", "");
         }
@@ -50,8 +44,6 @@ public class Authorization implements Initializable {
         if (!loginText.equals("") && !passText.equals("")) {
             try {
                 NetworkSettings.stream.getOs().writeObject(new AuthorizationRequest(loginText, passText));
-//                Stream.getOs().writeObject(new AuthorizationRequest(loginText, passText));
-
             } catch (IOException e) {
                 log.error("Error: {}", e.getMessage());
             }
@@ -69,8 +61,6 @@ public class Authorization implements Initializable {
             try {
                 while (!readThread.isInterrupted()) {
                     AbstractCommand command = (AbstractCommand) NetworkSettings.stream.getIs().readObject();
-//                    AbstractCommand command = (AbstractCommand) Stream.getIs().readObject();
-
                     log.debug("received: {}", command);
                     switch (command.getType()) {
 
@@ -87,14 +77,11 @@ public class Authorization implements Initializable {
                             SimpleMessage message = (SimpleMessage) command;
                             if (message.toString().equals("Registration successful")) {
                                 Platform.runLater(() -> {
-//                                    openNewScene("CloudStorage.fxml", "");
                                     NetworkSettings.signUpStage.hide();
                                     NetworkSettings.signInStage.show();
                                 });
                             }
                             Platform.runLater(() -> {
-//                                FXMLLoader loader=new FXMLLoader();
-//                                loader.getController();
                                 NetworkSettings.loader.getController();
                             });
                             break;

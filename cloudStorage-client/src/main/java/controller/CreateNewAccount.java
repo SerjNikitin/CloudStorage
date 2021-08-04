@@ -29,7 +29,6 @@ public class CreateNewAccount {
         String pass = password.getText().trim();
         if (!nam.equals("") && !log.equals("") && !pass.equals("")) {
             try {
-//                Stream.getOs().writeObject(new RegistrationRequest(nam, log, pass));
                 NetworkSettings.stream.getOs().writeObject(new RegistrationRequest(nam, log, pass));
             } catch (IOException e) {
                 e.printStackTrace();
