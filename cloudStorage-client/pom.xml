@@ -36,7 +36,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass>controller.NetworkSettings</mainClass>
+                                    <mainClass>service.impl.NetworkSettingImpl</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

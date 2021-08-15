@@ -1,10 +1,9 @@
 package controller;
 
+import factory.Factory;
 import animations.Shake;
-import dataBase.RequestDB;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
@@ -13,6 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import model.RegistrationRequest;
+import service.impl.NetworkSettingImpl;
 
 import java.io.IOException;
 
@@ -22,6 +22,8 @@ public class CreateNewAccount {
     public TextField login;
     public PasswordField password;
     public AnchorPane anchorPane;
+//    private Stage signInStage =new Stage();
+
 
     public void register(ActionEvent actionEvent) {
         String nam = name.getText().trim();
@@ -29,8 +31,8 @@ public class CreateNewAccount {
         String pass = password.getText().trim();
         if (!nam.equals("") && !log.equals("") && !pass.equals("")) {
             try {
-                NetworkSettings.stream.getOs().writeObject(new RegistrationRequest(nam, log, pass));
-            } catch (IOException e) {
+                Factory.getNetworkService().sendCommand(new RegistrationRequest(nam, log, pass));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
@@ -57,7 +59,10 @@ public class CreateNewAccount {
 
     public void exit(ActionEvent actionEvent) {
         anchorPane.getScene().getWindow().hide();
-        NetworkSettings.signInStage.show();
+//        signInStage.show();
+
+        NetworkSettingImpl.signInStage.show();
+
 //        openNewScene("Authorization.fxml");
     }
 }

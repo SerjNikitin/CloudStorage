@@ -1,15 +1,13 @@
 package controller;
 
+import factory.Factory;
 import animations.Shake;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import lombok.extern.slf4j.Slf4j;
-import model.AbstractCommand;
-import model.AuthenticationResponse;
-import model.AuthorizationRequest;
-import model.SimpleMessage;
+import model.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,6 +15,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import service.NetworkSettings;
+import service.impl.NetworkSettingImpl;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,13 +29,22 @@ public class Authorization implements Initializable {
     public PasswordField password;
     public AnchorPane anchorPane;
     private Thread readThread;
+    private User user = new User();
+//    private Stage signUpStage = new Stage();
+//    private final Stage signInStage = new Stage();
+//    public FXMLLoader loader = new FXMLLoader();
+
 
     public void register(ActionEvent actionEvent) {
         ((Node) actionEvent.getSource()).getScene().getWindow().hide();
-        if (NetworkSettings.signUpStage == null) {
-            NetworkSettings.signUpStage = openNewScene("CreateNewAccount.fxml", "");
+//        if (signUpStage == null) {
+//            signUpStage = openNewScene("CreateNewAccount.fxml", "");
+//        }
+        if (NetworkSettingImpl.signUpStage == null) {
+            NetworkSettingImpl.signUpStage = openNewScene("CreateNewAccount.fxml", "");
         }
-        NetworkSettings.signUpStage.show();
+        NetworkSettingImpl.signUpStage.show();
+//        signUpStage.show();
     }
 
     public void entrance(ActionEvent actionEvent) {
@@ -43,8 +52,8 @@ public class Authorization implements Initializable {
         String passText = password.getText().trim();
         if (!loginText.equals("") && !passText.equals("")) {
             try {
-                NetworkSettings.stream.getOs().writeObject(new AuthorizationRequest(loginText, passText));
-            } catch (IOException e) {
+                Factory.getNetworkService().sendCommand(new AuthorizationRequest(loginText, passText));
+            } catch (Exception e) {
                 log.error("Error: {}", e.getMessage());
             }
         } else {
@@ -60,15 +69,19 @@ public class Authorization implements Initializable {
         readThread = new Thread(() -> {
             try {
                 while (!readThread.isInterrupted()) {
-                    AbstractCommand command = (AbstractCommand) NetworkSettings.stream.getIs().readObject();
+                    AbstractCommand command = Factory.getNetworkService().readCommandResult();
                     log.debug("received: {}", command);
                     switch (command.getType()) {
 
                         case AUTH_RESPONSE:
                             AuthenticationResponse authResponse = (AuthenticationResponse) command;
-                            NetworkSettings.user.setName(authResponse.getName());
-                            NetworkSettings.user.setLogin(authResponse.getLogin());
-                            NetworkSettings.user.setPassword(authResponse.getPassword());
+
+                            user.setName(authResponse.getName());
+                            user.setLogin(authResponse.getLogin());
+                            user.setPassword(authResponse.getPassword());
+//                            NetworkSettingImpl.user.setName(authResponse.getName());
+//                            NetworkSettingImpl.user.setLogin(authResponse.getLogin());
+//                            NetworkSettingImpl.user.setPassword(authResponse.getPassword());
                             switchToCloud();
                             readThread.interrupt();
                             break;
@@ -77,12 +90,15 @@ public class Authorization implements Initializable {
                             SimpleMessage message = (SimpleMessage) command;
                             if (message.toString().equals("Registration successful")) {
                                 Platform.runLater(() -> {
-                                    NetworkSettings.signUpStage.hide();
-                                    NetworkSettings.signInStage.show();
+                                    NetworkSettingImpl.signUpStage.hide();
+                                    NetworkSettingImpl.signInStage.show();
+//                                    signUpStage.hide();
+//                                    signInStage.show();
                                 });
                             }
                             Platform.runLater(() -> {
-                                NetworkSettings.loader.getController();
+                                NetworkSettingImpl.loader.getController();
+//                                loader.getController();
                             });
                             break;
                     }
@@ -116,14 +132,19 @@ public class Authorization implements Initializable {
 //    }
 
     private Stage openNewScene(String sceneName, String userName) {
-        NetworkSettings.loader = new FXMLLoader();
-        NetworkSettings.loader.setLocation(getClass().getResource(sceneName));
+        NetworkSettingImpl.loader  = new FXMLLoader();
+        NetworkSettingImpl.loader.setLocation(getClass().getResource(sceneName));
+//        loader = new FXMLLoader();
+//        loader.setLocation(getClass().getResource(sceneName));
         try {
-            NetworkSettings.loader.load();
+            NetworkSettingImpl.loader.load();
+//            loader.load();
         } catch (IOException e) {
             log.debug("Error scene loading: {}", e.getClass());
         }
-        Parent root = NetworkSettings.loader.getRoot();
+        Parent root = NetworkSettingImpl.loader.getRoot();
+
+//        Parent root = loader.getRoot();
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         if (!userName.equals("")) stage.setTitle("Cloud storage. User: " + userName);
@@ -140,7 +161,9 @@ public class Authorization implements Initializable {
                 log.error("Error: {}", e.getMessage());
             }
             anchorPane.getScene().getWindow().hide();
-            openNewScene("CloudStorage.fxml", NetworkSettings.user.getLogin()).showAndWait();
+            openNewScene("CloudStorage.fxml", user.getLogin()).showAndWait();
+
+//            openNewScene("CloudStorage.fxml", NetworkSettingImpl.user.getLogin()).showAndWait();
         });
     }
 }

@@ -1,6 +1,7 @@
 package controller;
 
 
+import factory.Factory;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import model.*;
+import service.impl.NetworkSettingImpl;
+import service.impl.NetworkServiceImpl;
 
 import java.awt.*;
 import java.io.File;
@@ -34,11 +37,13 @@ public class CloudStorage implements Initializable {
     public TextField serverField;
     public AnchorPane anchorPane;
     private Path clientDir;
-    private Stream stream;
+    private final NetworkServiceImpl stream;
     private String fileName;
+//    private final Stage signInStage= new Stage();
+
 
     public CloudStorage() {
-        stream = NetworkSettings.stream;
+        stream = Factory.getNetworkService();
     }
 
     @Override
@@ -51,12 +56,12 @@ public class CloudStorage implements Initializable {
             refreshClientView();
             addNavigationListeners();
 
-            stream.getOs().writeObject(new ListRequest());
+            stream.sendCommand(new ListRequest());
 
             Thread readThread = new Thread(() -> {
                 try {
                     while (true) {
-                        AbstractCommand command = (AbstractCommand) stream.getIs().readObject();
+                        AbstractCommand command = stream.readCommandResult();
                         switch (command.getType()) {
                             case LIST_RESPONSE:
                                 ListResponse response = (ListResponse) command;
@@ -91,9 +96,7 @@ public class CloudStorage implements Initializable {
             fileName = clientView.getSelectionModel().getSelectedItem();
             if (serverView.getItems().stream().noneMatch(p -> p.equals(fileName))) {
                 FileMessage message = new FileMessage(clientDir.resolve(fileName));
-
-                stream.getOs().writeObject(message);
-                stream.getOs().flush();
+                stream.sendCommand(message);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -105,10 +108,9 @@ public class CloudStorage implements Initializable {
         try {
             fileName = serverView.getSelectionModel().getSelectedItem();
             if (clientView.getItems().stream().noneMatch(p -> p.equals(fileName))) {
-                stream.getOs().writeObject(new FileRequest(fileName));
-                stream.getOs().flush();
+                stream.sendCommand(new FileRequest(fileName));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -132,10 +134,9 @@ public class CloudStorage implements Initializable {
             if (e.getClickCount() == 2) {
                 String item = serverView.getSelectionModel().getSelectedItem();
                 try {
-                    stream.getOs().writeObject(new PathInRequest(item));
-                    stream.getOs().flush();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                    stream.sendCommand(new PathInRequest(item));
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
             }
         });
@@ -166,8 +167,8 @@ public class CloudStorage implements Initializable {
     }
 
     public void serverPathUp(ActionEvent actionEvent) throws IOException {
-        stream.getOs().writeObject(new PathUpRequest());
-        stream.getOs().flush();
+        stream.sendCommand(new PathUpRequest());
+
     }
 
     public void deleteClientFile(ActionEvent actionEvent) throws IOException {
@@ -183,9 +184,9 @@ public class CloudStorage implements Initializable {
     public void deleteServerFile(ActionEvent actionEvent) {
         fileName = serverView.getSelectionModel().getSelectedItem();
         try {
-            stream.getOs().writeObject(new DeleteRequest(fileName));
-            stream.getOs().flush();
-        } catch (IOException e) {
+            stream.sendCommand(new DeleteRequest(fileName));
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -209,7 +210,8 @@ public class CloudStorage implements Initializable {
     public void exit(ActionEvent actionEvent) {
         anchorPane.getScene().getWindow().hide();
 //        openNewScene("Authorization.fxml", "");
-        NetworkSettings.signInStage.show();
+        NetworkSettingImpl.signInStage.show();
+//        signInStage.show();
     }
 
     private Stage openNewScene(String scene, String userName) {
