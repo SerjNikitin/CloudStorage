@@ -1,8 +1,9 @@
-package model;
+package domaine.abstarctCommandImpl;
 
 
 import lombok.Getter;
 import lombok.ToString;
+import domaine.AbstractCommand;
 
 import java.io.IOException;
 import java.nio.file.Files;

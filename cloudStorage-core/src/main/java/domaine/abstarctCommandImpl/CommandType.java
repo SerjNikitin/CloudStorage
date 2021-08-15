@@ -1,4 +1,4 @@
-package model;
+package domaine.abstarctCommandImpl;
 
 public enum CommandType {
     FILE_REQUEST,

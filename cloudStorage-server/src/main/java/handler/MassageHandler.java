@@ -1,11 +1,12 @@
 package handler;
 
 import dataBase.RequestDB;
-import model.User;
+import domaine.User;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-import model.*;
+import domaine.*;
+import domaine.abstarctCommandImpl.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,8 +20,8 @@ public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand>
     private Path currentPath;
 
 //    public MassageHandler() throws IOException {
-//        currentPath = Paths.get("serverDir");
 //        if (!Files.exists(currentPath)) {
+//            currentPath = Paths.get("./");
 //            Files.createDirectory(currentPath);
 //        }
 //    }
@@ -32,7 +33,7 @@ public class MassageHandler extends SimpleChannelInboundHandler<AbstractCommand>
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, AbstractCommand command) throws IOException {
+    protected void channelRead0(ChannelHandlerContext ctx, AbstractCommand command) {
 
         log.debug("massage: {}", command);
         switch (command.getType()) {

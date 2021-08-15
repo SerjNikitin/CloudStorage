@@ -1,6 +1,7 @@
-package model;
+package domaine.abstarctCommandImpl;
 
 import lombok.AllArgsConstructor;
+import domaine.AbstractCommand;
 
 @AllArgsConstructor
 public class SimpleMessage extends AbstractCommand {

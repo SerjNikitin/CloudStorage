@@ -1,6 +1,6 @@
 package service;
 
-import model.AbstractCommand;
+import domaine.AbstractCommand;
 
 public interface NetWorkService {
 

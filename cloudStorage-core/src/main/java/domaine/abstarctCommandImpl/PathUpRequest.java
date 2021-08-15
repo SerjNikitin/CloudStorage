@@ -1,4 +1,6 @@
-package model;
+package domaine.abstarctCommandImpl;
+
+import domaine.AbstractCommand;
 
 public class PathUpRequest extends AbstractCommand {
     @Override

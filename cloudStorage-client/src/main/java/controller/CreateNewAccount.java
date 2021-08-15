@@ -11,7 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import model.RegistrationRequest;
+import domaine.abstarctCommandImpl.RegistrationRequest;
 import service.impl.NetworkSettingImpl;
 
 import java.io.IOException;
@@ -59,8 +59,6 @@ public class CreateNewAccount {
 
     public void exit(ActionEvent actionEvent) {
         anchorPane.getScene().getWindow().hide();
-//        signInStage.show();
-
         NetworkSettingImpl.signInStage.show();
 
 //        openNewScene("Authorization.fxml");

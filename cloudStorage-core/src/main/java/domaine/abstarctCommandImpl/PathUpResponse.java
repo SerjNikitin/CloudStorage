@@ -1,9 +1,10 @@
-package model;
+package domaine.abstarctCommandImpl;
 
 import lombok.Getter;
+import domaine.AbstractCommand;
 
 @Getter
-public class PathUpResponse extends AbstractCommand{
+public class PathUpResponse extends AbstractCommand {
 
     private final String path;
 

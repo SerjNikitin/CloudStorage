@@ -1,4 +1,6 @@
-package model;
+package domaine;
+
+import domaine.abstarctCommandImpl.CommandType;
 
 import java.io.Serializable;
 

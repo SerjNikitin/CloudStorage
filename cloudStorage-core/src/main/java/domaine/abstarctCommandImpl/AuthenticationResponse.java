@@ -1,8 +1,10 @@
-package model;
+package domaine.abstarctCommandImpl;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import domaine.AbstractCommand;
+import domaine.User;
 
 @Getter
 @AllArgsConstructor

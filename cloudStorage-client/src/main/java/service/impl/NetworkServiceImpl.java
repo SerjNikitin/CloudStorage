@@ -3,7 +3,7 @@ package service.impl;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import lombok.Getter;
-import model.AbstractCommand;
+import domaine.AbstractCommand;
 import service.NetWorkService;
 
 import java.io.IOException;

@@ -13,7 +13,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import model.*;
+import domaine.*;
+import domaine.abstarctCommandImpl.*;
 import service.impl.NetworkSettingImpl;
 import service.impl.NetworkServiceImpl;
 
@@ -211,7 +212,6 @@ public class CloudStorage implements Initializable {
         anchorPane.getScene().getWindow().hide();
 //        openNewScene("Authorization.fxml", "");
         NetworkSettingImpl.signInStage.show();
-//        signInStage.show();
     }
 
     private Stage openNewScene(String scene, String userName) {
