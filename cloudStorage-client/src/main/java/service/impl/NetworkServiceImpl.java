@@ -48,7 +48,6 @@ public class NetworkServiceImpl implements NetWorkService {
         }
     }
 
-
     @Override
     public void sendCommand(AbstractCommand command) {
         try {
