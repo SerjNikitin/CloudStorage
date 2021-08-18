@@ -5,7 +5,7 @@ import org.flywaydb.core.Flyway;
 public class ServerApp {
     public static void main(String[] args) {
         Flyway flyway = Flyway.configure().dataSource(
-                "jdbc:mysql://localhost:3306/cloud_storage", "root", "root").load();
+                "jdbc:postgresql://localhost:5445/cloud_storage", "postgres", "postgrespass").load();
         flyway.migrate();
         Server server = new Server();
     }

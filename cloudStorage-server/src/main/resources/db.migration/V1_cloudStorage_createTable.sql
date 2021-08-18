@@ -1,8 +1,12 @@
-CREATE TABLE `cloud_storage`.`users`
+create table cloud_storage."user"
 (
-    `name`     VARCHAR(45) NOT NULL,
-    `login`    VARCHAR(45) NOT NULL,
-    `password` VARCHAR(45) NOT NULL,
-    PRIMARY KEY (`password`),
-    UNIQUE INDEX `login_UNIQUE` (`login` ASC) VISIBLE
+    name     varchar not null,
+    login    varchar not null,
+    password varchar not null
+        constraint user_pk
+        primary key
 );
+
+-- alter table cloud_storage."user"
+--     owner to postgres;
+
