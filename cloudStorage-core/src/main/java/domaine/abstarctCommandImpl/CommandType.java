@@ -1,0 +1,17 @@
+package domaine.abstarctCommandImpl;
+
+public enum CommandType {
+    FILE_REQUEST,
+    FILE_MESSAGE,
+    DELETE_REQUEST,
+    PATH_UP_REQUEST,
+    PATH_UP_RESPONSE,
+    PATH_IN_REQUEST,
+    REGISTRATION_REQUEST,
+    AUTH_REQUEST,
+    AUTH_RESPONSE,
+    SIMPLE_MESSAGE,
+    LIST_RESPONSE,
+    LIST_REQUEST
+
+}

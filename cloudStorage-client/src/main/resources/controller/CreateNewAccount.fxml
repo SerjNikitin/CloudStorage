@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="440.0" prefWidth="646.0" style="-fx-background-color: #65748a" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CreateNewAccount">
+
+    <Button layoutX="241.0" layoutY="344.0" mnemonicParsing="false" onAction="#register" prefHeight="43.0" prefWidth="163.0" text="Зарегистрироваться" textFill="#65748a">
+        <font>
+            <Font name="System Italic" size="14.0" />
+        </font>
+    </Button>
+    <TextField fx:id="login" layoutX="217.0" layoutY="238.0" prefHeight="26.0" prefWidth="212.0" promptText="Логин">
+        <font>
+            <Font size="15.0" />
+        </font></TextField>
+    <PasswordField fx:id="password" layoutX="217.0" layoutY="284.0" prefHeight="26.0" prefWidth="212.0" promptText="Пароль">
+        <font>
+            <Font size="15.0" />
+        </font></PasswordField>
+    <Label layoutX="217.0" layoutY="58.0" prefHeight="94.0" prefWidth="212.0" text="     InCloud" textFill="#f5f5f5">
+        <font>
+            <Font name="System Bold Italic" size="32.0" />
+        </font>
+    </Label>
+   <Label layoutX="91.0" layoutY="138.0" prefHeight="27.0" prefWidth="463.0" text="Придумайте имя, логин и пароль для вашего аккаунта" textFill="#dfdada">
+      <font>
+         <Font name="System Italic" size="18.0" />
+      </font>
+   </Label>
+   <TextField fx:id="name" layoutX="217.0" layoutY="193.0" prefHeight="26.0" prefWidth="212.0" promptText="Имя">
+      <font>
+         <Font size="15.0" />
+      </font>
+   </TextField>
+   <Button layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#exit" prefHeight="7.0" prefWidth="15.0" text="❮" textFill="#65748a" textOverrun="LEADING_ELLIPSIS">
+      <font>
+         <Font name="System Bold Italic" size="13.0" />
+      </font>
+   </Button>
+
+
+</AnchorPane>

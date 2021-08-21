@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="440.0" prefWidth="646.0" style="-fx-background-color: #65748a;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CloudStorage">
+    <ListView fx:id="clientView" layoutX="7.0" layoutY="59.0" prefHeight="321.0" prefWidth="290.0" />
+    <ListView fx:id="serverView" layoutX="349.0" layoutY="59.0" prefHeight="321.0" prefWidth="290.0" />
+    <Button layoutX="349.0" layoutY="392.0" mnemonicParsing="false" onAction="#download" prefHeight="34.0" prefWidth="104.0" text="&lt;&lt;&lt; Загрузить" />
+    <Button layoutX="193.0" layoutY="392.0" mnemonicParsing="false" onAction="#send" prefHeight="34.0" prefWidth="104.0" text="Отправить &gt;&gt;&gt;">
+        <font>
+            <Font size="11.0" />
+        </font>
+    </Button>
+    <TextField fx:id="clientField" editable="false" layoutX="7.0" layoutY="33.0" prefHeight="26.0" prefWidth="268.0" />
+    <TextField fx:id="serverField" editable="false" layoutX="349.0" layoutY="33.0" prefHeight="26.0" prefWidth="268.0" />
+    <Button layoutX="275.0" layoutY="33.0" mnemonicParsing="false" onAction="#clientPathUp" prefHeight="26.0" prefWidth="10.0" text="..." />
+    <Button layoutX="617.0" layoutY="33.0" mnemonicParsing="false" onAction="#serverPathUp" prefHeight="26.0" prefWidth="10.0" text="..." />
+    <Button layoutX="7.0" layoutY="392.0" mnemonicParsing="false" onAction="#deleteClientFile" prefHeight="34.0" prefWidth="74.0" text="Удалить" />
+    <Button layoutX="97.0" layoutY="392.0" mnemonicParsing="false" onAction="#openClientFile" prefHeight="34.0" prefWidth="74.0" text="Открыть" />
+    <Button layoutX="564.0" layoutY="392.0" mnemonicParsing="false" onAction="#deleteServerFile" prefHeight="34.0" prefWidth="74.0" text="Удалить" />
+    <Button layoutX="3.0" layoutY="2.0" mnemonicParsing="false" onAction="#exit" prefHeight="7.0" prefWidth="15.0" text="❮" textFill="#65748a" textOverrun="LEADING_ELLIPSIS">
+        <font>
+            <Font name="System Bold Italic" size="11.0" />
+        </font>
+    </Button>
+</AnchorPane>
