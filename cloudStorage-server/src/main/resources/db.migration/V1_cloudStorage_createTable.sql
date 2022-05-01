@@ -1,4 +1,5 @@
-create table cloud_storage."user"
+create schema cloud;
+create table cloud.users
 (
     name     varchar not null,
     login    varchar not null,
